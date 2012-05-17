@@ -3,6 +3,21 @@ $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 . "$here\YamlDotNet-Integration.ps1"
 Load-YamlDotNetLibraries "$here\..\Libs"
 
+Describe "Load-YamlDotNetLibraries" {
+
+	$yamldotNet = "$here\..\Libs\YamlDotNet.Core.dll"
+    $yamldotNetTempName = "$here\..\Libs\YamlDotNet.Core.Temp.dll"
+	
+    It "should not lock the assembly files" {
+		Copy-Item $yamldotNet  $yamldotNetTempName
+		Remove-Item $yamldotNet
+		Copy-Item $yamldotNetTempName $yamldotNet  -force
+		Remove-Item $yamldotNetTempName
+		$result = Test-Path $yamldotNet
+		$result.should.be($true)
+    }
+}
+
 Describe "Convert-YamlScalarNodeToValue" {
 
     It "takes a YamlScalar and converts it to a value type" {
